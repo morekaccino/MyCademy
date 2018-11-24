@@ -1,0 +1,3 @@
+[console_scripts]
+pinax = pinaxcli.cli:main
+

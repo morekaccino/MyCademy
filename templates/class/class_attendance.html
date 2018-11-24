@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Table V01</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {#    <!--Import Google Icon Font-->#}
+    {#    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">#}
+    {#    <link rel="stylesheet" href="{% static 'css/class_section.css' %}">#}
+    {#    <!-- Compiled and minified CSS -->#}
+    {#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">#}
+
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'fonts/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/animate/animate.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/select2/select2.min.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'vendor/perfect-scrollbar/perfect-scrollbar.css' %}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/util.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <!--===============================================================================================-->
+    <style>
+        .container-table100 {
+            background: -webkit-linear-gradient(45deg, {{ color1 }}, {{ color2 }});
+            background: -o-linear-gradient(45deg, {{ color1 }}, {{ color2 }});
+            background: -moz-linear-gradient(45deg, {{ color1 }}, {{ color2 }});
+            background: linear-gradient(45deg, {{ color1 }}, {{ color2 }});
+        }
+
+    </style>
+</head>
+<body>
+
+
+<div class="limiter">
+    <div class="container-table100">
+        <div class="wrap-table100">
+            <div class="table100">
+                <table>
+                    <thead>
+                    <tr class="table100-head">
+                        <th class="column1">Student</th>
+                        <th class="column2">Status</th>
+                        <th class="column3">Notes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for student in all_students.all %}
+                        <tr id="{{ student.id }}">
+                            <td class="column1" id="{{ student.id }}-name">{{ student }}</td>
+                            <td class="column2" id="{{ student.id }}-status" onclick="change_status({{ student.id }})">
+                                Click to Change
+                            </td>
+                            <td class="column3" id="{{ student.id }}-notes">{{ student.notes }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--===============================================================================================-->
+<script src="{% static 'vendor/jquery/jquery-3.2.1.min.js' %}"></script>
+<!--===============================================================================================-->
+<script src="{% static 'vendor/bootstrap/js/popper.js' %}"></script>
+<script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+<!--===============================================================================================-->
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+<!--===============================================================================================-->
+<script src="{% static 'js/main.js' %}"></script>
+<!--===============================================================================================-->
+{% for attendance in attendances %}
+    <script>
+        var id = "{{ attendance.student.id }}";
+        var element = document.getElementById(id).children[1];
+        {% if attendance.status == "present" %}
+            element.innerHTML = "<span style='color:green;'>Present &#x2714;</span>";
+        {% elif attendance.status == "absent"  %}
+            element.innerHTML = "<span style='color:red;'>Absent &#x2716;</span>";
+        {% endif %}
+    </script>
+{% endfor %}
+<!--===============================================================================================-->
+<script>
+    function change_status(id) {
+        var current_status = 0;
+        var element = document.getElementById(id + "-status");
+        var to_send = "";
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = this.responseText;
+                if (response.includes("present saved")) {
+                    element.innerHTML = "<span style='color:green;'>Present &#x2714;</span>"
+                }
+                else if (response.includes("absent saved")) {
+                    element.innerHTML = "<span style='color:red;'>Absent &#x2716;</span>"
+                }
+                else {
+                    alert("Something went wrong, Please try again...");
+                    console.log(response)
+                }
+
+            }
+        };
+
+        if (element.innerHTML.includes("Absent")) {
+            current_status = -1;
+            to_send = "present";
+        }
+        else if (element.innerHTML.includes("Present")) {
+            current_status = 1;
+            to_send = "absent";
+        }
+        else {
+            current_status = 0;
+            to_send = "present";
+        }
+
+
+        xhttp.open("GET", "http://localhost:8000/attendance/api/{{ course }}/{{ section }}/{{ session }}/" + id + "/" + to_send, true);
+        xhttp.send();
+
+    }
+</script>
+
+</body>
+</html>

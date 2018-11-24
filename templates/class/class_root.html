@@ -1,0 +1,132 @@
+{% load static %}
+{% load tz %}
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/class_section.css' %}">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <style>
+
+        {% for class in classes %}
+            .card-color{{ class.id }} {
+            background: #c850c0;
+            background: -webkit-linear-gradient(45deg, {{ class.color1 }}, {{ class.color2 }});
+            background: -o-linear-gradient(45deg, {{ class.color1 }}, {{ class.color2 }});
+            background: -moz-linear-gradient(45deg, {{ class.color1 }}, {{ class.color2 }});
+            background: linear-gradient(45deg, {{ class.color1 }}, {{ class.color2 }});
+        }
+        {% endfor %}
+
+    </style>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body>
+
+<nav>
+    <div class="nav-wrapper">
+        <a href="#!" class="brand-logo hide-on-med-and-down center">MyCademy</a>
+
+        <div class="container col s0">
+            <a href="#!" class="breadcrumb">Classes</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row section">
+        {% if classes %}
+            {% for class in classes %}
+                <div class="col s12 m4">
+                    <div class="card card-color{{ class.id }}">
+                        <div class="card-content white-text">
+                            <span class="card-title">{{ class }}</span>
+                            <p>
+                                {{ class.course.school }}
+                            </p>
+                            <p>
+                                {{ class.students.count }} Students
+                            </p>
+                        </div>
+                        <div class="card-action card-color{{ class.id }}">
+                            <a href="{{ class.course }}/{{ class.section }}">Go to sessions</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <h4 class="center-align">
+                Create your first session
+                <p>
+                    <a class="modal-trigger waves-effect waves-light btn-large" href="#modal1">Create</a>
+                </p>
+
+            </h4>
+        {% endif %}
+    </div>
+    {% if sessions %}
+        <a class="modal-trigger btn-floating btn-large waves-effect waves-light red" href="#modal1"><i
+                class="material-icons">add</i></a>
+    {% endif %}
+
+</div>
+
+
+<!-- Modal Structure -->
+<div id="modal1" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <h4>Create a new session?</h4>
+    </div>
+    <div class="modal-footer">
+        <a href="#!" onclick="create_new_session()" class="modal-close waves-effect waves-green btn-flat">Yes</a>
+    </div>
+</div>
+
+
+<!-- Compiled and minified JavaScript -->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('.modal').modal();
+    });
+
+    $("create_new_session").onclick = create_new_session;
+
+    function create_new_session() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var response = this.responseText;
+                if (response.includes("created"))
+                    location.reload()
+            }
+        }
+        xhttp.open("GET", "http://localhost:8000/attendance/api/{{ course }}/{{ section }}/create", true);
+        xhttp.send();
+    }
+</script>
+</body>
+</html>
+
+
+{#<!DOCTYPE html>#}
+{#<html lang="en">#}
+{#<head>#}
+{#    <meta charset="UTF-8">#}
+{#    <title>Courses</title>#}
+{#</head>#}
+{#<body>#}
+{##}
+{#{% for class in classes %}#}
+{#    <p><a href="{{ class.course.course_name }}/{{ class.section }}">{{ class }}</a></p>#}
+{#{% endfor %}#}
+{#</body>#}
+{#</html>#}
